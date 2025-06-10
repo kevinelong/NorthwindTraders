@@ -65,6 +65,19 @@ public class CRUD {
         return rs;
     }
 
+    public ResultSet search(String sql, String needleSought) {
+        ResultSet rs = null;
+        try {
+            var ps = con.prepareStatement(sql);
+            ps.setString(1,needleSought);
+            rs = ps.executeQuery();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return rs;
+    }
+
 
     protected void printAll(ResultSet rs, String[] fields) {
         while (true) {
@@ -82,14 +95,17 @@ public class CRUD {
             }
         }
     }
-    public ArrayList<HashMap> getData(String sql, String[] fields) {
-        var list = new ArrayList<HashMap>();
-        ResultSet rs = read(sql);
+
+    public ArrayList<HashMap<String,String>> convert(ResultSet rs, String[] fields) {
+        var list = new ArrayList<HashMap<String,String>>();
+
         if (null == rs) {
             System.out.println("NO RESULTS");
             return list;
         }
+
         while (true) {
+
             try {
                 if (!rs.next()) break;
             } catch (SQLException e) {
@@ -105,16 +121,27 @@ public class CRUD {
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
+
             list.add(item);
         }
+
         try {
             rs.close();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-
         return list;
     }
+
+    public ArrayList<HashMap<String,String>> searchData(String sql, String[] fields, String needleSought) {
+        return convert(search(sql, needleSought), fields);
+    }
+
+    public ArrayList<HashMap<String,String>> getData(String sql, String[] fields) {
+        return convert(read(sql), fields);
+    }
+
+
     public void close() {
         try {
             con.close();

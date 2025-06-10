@@ -4,7 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
-
+//MODEL
 public class NorthWindDataManager {
     private final CRUD db;
 
@@ -29,10 +29,15 @@ public class NorthWindDataManager {
         }
     }
 
-    public void printProducts() {
-        var fields = new String[]{"ProductName"};
-        ArrayList<HashMap> list = db.getData("SELECT ProductName FROM products", fields);
-        list.forEach(item -> System.out.println(item.get("ProductName")));
+    public ArrayList<HashMap<String,String>> getProductsFromCategory(String category, String[] fields) {
+        ArrayList<HashMap<String,String>> list = db.searchData("SELECT ProductName FROM products WHERE CategoryID = ?", fields, category);
+        return list;
+    }
+    public ArrayList<HashMap<String,String>> getBeverages(String[] fields) {
+        return getProductsFromCategory("1", fields);
+    }
+    public ArrayList<HashMap<String,String>> getCondiments(String[] fields) {
+        return getProductsFromCategory("2", fields);
     }
 
     public void close() {
