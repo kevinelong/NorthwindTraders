@@ -2,6 +2,8 @@ package org.example;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class NorthWindDataManager {
     private final CRUD db;
@@ -28,17 +30,9 @@ public class NorthWindDataManager {
     }
 
     public void printProducts() {
-        ResultSet rs2 = db.read("SELECT ProductName FROM products");
-        if (null == rs2) {
-            System.out.println("NO RESULTS");
-            return;
-        }
-        db.printAll(rs2, new String[]{"ProductName"});
-        try {
-            rs2.close();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        var fields = new String[]{"ProductName"};
+        ArrayList<HashMap> list = db.getData("SELECT ProductName FROM products", fields);
+        list.forEach(item -> System.out.println(item.get("ProductName")));
     }
 
     public void close() {

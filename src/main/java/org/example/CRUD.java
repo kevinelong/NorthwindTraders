@@ -6,6 +6,8 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /*
 CREATE
@@ -80,7 +82,39 @@ public class CRUD {
             }
         }
     }
+    public ArrayList<HashMap> getData(String sql, String[] fields) {
+        var list = new ArrayList<HashMap>();
+        ResultSet rs = read(sql);
+        if (null == rs) {
+            System.out.println("NO RESULTS");
+            return list;
+        }
+        while (true) {
+            try {
+                if (!rs.next()) break;
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
 
+            var item = new HashMap<String,String>();
+
+            try {
+                for (String f : fields) {
+                    item.put(f, rs.getString(f));
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+            list.add(item);
+        }
+        try {
+            rs.close();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return list;
+    }
     public void close() {
         try {
             con.close();
