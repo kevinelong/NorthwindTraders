@@ -54,21 +54,25 @@ public class CRUD {
             e.printStackTrace();
         }
     }
+
+    protected String quoteAll(String[] list, String quote){
+        return Arrays.stream(list).map(s -> String.format("%s%s%s",quote,s,quote)).collect(Collectors.joining(","));
+    }
     //CREATE
     public Integer create(String tableName, String[] fields, String[] values){
 
-        String df = Arrays.stream(fields).map(s -> String.format("`%s`",s)).collect(Collectors.joining(","));
-        String dv = Arrays.stream(values).map(s -> String.format("'%s'",s)).collect(Collectors.joining(","));
+        String quotedFields = quoteAll(fields, "`");
+        String quotedValues = quoteAll(values, "'");
 
-        String sqlInsert = String.format("INSERT INTO %s (%s) VALUES (%s);", tableName, df, dv);
-        System.out.println(sqlInsert);
-        Integer id = null;
+        String sqlInsert = String.format("INSERT INTO %s (%s) VALUES (%s);", tableName, quotedFields, quotedValues);
+
+        Integer affectedRowCount = null;
         try {
-            id = stmt.executeUpdate(sqlInsert);
+            affectedRowCount = stmt.executeUpdate(sqlInsert);
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
-        return id;
+        return affectedRowCount;
     }
     //READ
     public ResultSet read(String sql) {
