@@ -1,6 +1,7 @@
 package org.example;
 
 public class Employee {
+    Integer id = null;
     String firstName;
     String lastName;
     String notes;

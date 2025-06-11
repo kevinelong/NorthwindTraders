@@ -55,11 +55,12 @@ public class CRUD {
         }
     }
 
-    protected String quoteAll(String[] list, String quote){
-        return Arrays.stream(list).map(s -> String.format("%s%s%s",quote,s,quote)).collect(Collectors.joining(","));
+    protected String quoteAll(String[] list, String quote) {
+        return Arrays.stream(list).map(s -> String.format("%s%s%s", quote, s, quote)).collect(Collectors.joining(","));
     }
+
     //CREATE
-    public Integer create(String tableName, String[] fields, String[] values){
+    public Integer create(String tableName, String[] fields, String[] values) {
 
         String quotedFields = quoteAll(fields, "`");
         String quotedValues = quoteAll(values, "'");
@@ -74,6 +75,7 @@ public class CRUD {
         }
         return affectedRowCount;
     }
+
     //READ
     public ResultSet read(String sql) {
         ResultSet rs = null;
@@ -87,11 +89,53 @@ public class CRUD {
         return rs;
     }
 
+    //UPDATE
+    /*
+    UPDATE table_name
+SET column1 = value1, column2 = value2, ...
+WHERE condition;
+     */
+    public Integer update(String tableName, HashMap<String, String> pairs, Integer id, String idField) {
+
+        //create key value pairs for update
+        ArrayList<String> list = new ArrayList<>();
+        for (String k : pairs.keySet()) {
+            String v = pairs.get(k);
+            list.add(String.format("`%s` = '%s'", k, v));
+        }
+        String both = String.join(", ", list);
+
+        String sqlUpdate = String.format(
+                "UPDATE %s SET %s WHERE `%s` = %d;"
+                , tableName, both, idField, id);
+        System.out.println(sqlUpdate);
+        Integer affectedRowCount = null;
+        try {
+            affectedRowCount = stmt.executeUpdate(sqlUpdate);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return affectedRowCount;
+    }
+
+    public Integer delete(String tableName, Integer id, String idField) {
+
+        String sqlDelete = String.format("DELETE FROM %s WHERE `%s` = %d;", tableName, idField, id);
+        System.out.println(sqlDelete);
+        Integer affectedRowCount = null;
+        try {
+            affectedRowCount = stmt.executeUpdate(sqlDelete);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return affectedRowCount;
+    }
+
     public ResultSet search(String sql, String needleSought) {
         ResultSet rs = null;
         try {
             var ps = con.prepareStatement(sql);
-            ps.setString(1,needleSought);
+            ps.setString(1, needleSought);
             rs = ps.executeQuery();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -118,8 +162,8 @@ public class CRUD {
         }
     }
 
-    public ArrayList<HashMap<String,String>> convert(ResultSet rs, String[] fields) {
-        var list = new ArrayList<HashMap<String,String>>();
+    public ArrayList<HashMap<String, String>> convert(ResultSet rs, String[] fields) {
+        var list = new ArrayList<HashMap<String, String>>();
 
         if (null == rs) {
             System.out.println("NO RESULTS");
@@ -134,7 +178,7 @@ public class CRUD {
                 throw new RuntimeException(e);
             }
 
-            var item = new HashMap<String,String>();
+            var item = new HashMap<String, String>();
 
             try {
                 for (String f : fields) {
@@ -155,11 +199,11 @@ public class CRUD {
         return list;
     }
 
-    public ArrayList<HashMap<String,String>> searchData(String sql, String[] fields, String needleSought) {
+    public ArrayList<HashMap<String, String>> searchData(String sql, String[] fields, String needleSought) {
         return convert(search(sql, needleSought), fields);
     }
 
-    public ArrayList<HashMap<String,String>> getData(String sql, String[] fields) {
+    public ArrayList<HashMap<String, String>> getData(String sql, String[] fields) {
         return convert(read(sql), fields);
     }
 
