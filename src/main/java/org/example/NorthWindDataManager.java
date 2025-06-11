@@ -39,7 +39,15 @@ public class NorthWindDataManager {
     public ArrayList<HashMap<String,String>> getCondiments(String[] fields) {
         return getProductsFromCategory("2", fields);
     }
+    public Integer addEmployee(Employee employee){
 
+        String[] fields = new String[]{"firstName", "lastName", "notes"};
+        String[] values = new String[]{employee.firstName, employee.lastName, employee.notes };
+
+        Integer rowsAffected = db.create("Employees", fields, values);
+        System.out.println(rowsAffected);
+        return rowsAffected;
+    }
     public void close() {
         //cleanup
         db.close();

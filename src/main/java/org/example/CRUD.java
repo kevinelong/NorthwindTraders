@@ -7,7 +7,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.stream.Collectors;
 
 /*
 CREATE
@@ -52,7 +54,23 @@ public class CRUD {
             e.printStackTrace();
         }
     }
+    //CREATE
+    public Integer create(String tableName, String[] fields, String[] values){
 
+        String df = Arrays.stream(fields).map(s -> String.format("`%s`",s)).collect(Collectors.joining(","));
+        String dv = Arrays.stream(values).map(s -> String.format("'%s'",s)).collect(Collectors.joining(","));
+
+        String sqlInsert = String.format("INSERT INTO %s (%s) VALUES (%s);", tableName, df, dv);
+        System.out.println(sqlInsert);
+        Integer id = null;
+        try {
+            id = stmt.executeUpdate(sqlInsert);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return id;
+    }
+    //READ
     public ResultSet read(String sql) {
         ResultSet rs = null;
 
